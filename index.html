@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071b16">
+<title>3% Risk Calculator</title>
+<style>
+:root{--bg:#071b16;--panel:#102820;--panel2:#15352b;--line:#285343;--txt:#effaf3;--muted:#9bb8a8;--green:#52e09a;--red:#ff7777;--gold:#e7c77b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#173d2f 0,#071b16 48%);color:var(--txt);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:22px 14px 40px}
+.wrap{max-width:760px;margin:auto}.brand{font-size:12px;letter-spacing:3px;color:var(--gold);font-weight:800}.heading{font-size:clamp(26px,6vw,38px);font-weight:850;margin:8px 0 4px}.sub{color:var(--muted);margin:0 0 20px}
+.card{background:linear-gradient(145deg,#123126,#0d241d);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 12px 35px #0003}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.metric{background:#0a2019;border:1px solid #234b3b;border-radius:14px;padding:14px}.label{color:var(--muted);font-size:12px}.value{font-size:25px;font-weight:800;margin-top:5px;overflow-wrap:anywhere}.green{color:var(--green)}.red{color:var(--red)}
+label{display:block;color:var(--muted);font-size:13px;margin:0 0 7px}input{width:100%;background:#071b16;border:1px solid #315a48;border-radius:11px;color:var(--txt);padding:13px;font-size:17px;outline:none}input:focus{border-color:var(--green)}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}button{border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer}.win{background:var(--green);color:#062016}.loss{background:#ff7777;color:#260909}.reset{background:#244638;color:var(--txt);width:100%;margin-top:10px}.small{font-size:12px;color:var(--muted);line-height:1.55}.next{border:1px solid #3c7259;background:#102e23;border-radius:14px;padding:15px;margin-top:14px}.next strong{font-size:24px;color:var(--green)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid #254536}th{color:var(--muted);font-weight:600}.tablewrap{overflow:auto}.empty{color:var(--muted);padding:14px 0;text-align:center}
+@media(max-width:540px){.fields{grid-template-columns:1fr 1fr}.fields>div:first-child{grid-column:span 2}.value{font-size:22px}.card{padding:15px}}
+</style>
+</head>
+<body><main class="wrap">
+<div class="brand">GREENLINE • TRADE TOOLS</div>
+<div class="heading">3% Risk Calculator</div>
+<p class="sub">Balance-based stake • 96% payout • Automatic next trade calculation</p>
+
+<section class="card">
+ <div class="fields">
+  <div><label for="capital">Starting / current balance (₹)</label><input id="capital" type="number" min="0" step="0.01" value="852"></div>
+  <div><label for="risk">Risk per trade (%)</label><input id="risk" type="number" min="0" max="100" step="0.1" value="3"></div>
+  <div><label for="payout">Payout (%)</label><input id="payout" type="number" min="0" step="0.1" value="96"></div>
+ </div>
+ <p class="small">Stake is calculated as current balance × risk %. A win adds the payout profit to the balance. A loss deducts the full stake.</p>
+</section>
+
+<section class="grid">
+ <div class="metric"><div class="label">CURRENT BALANCE</div><div class="value" id="balance">₹852.00</div></div>
+ <div class="metric"><div class="label">NEXT TRADE STAKE</div><div class="value" id="stake">₹25.56</div></div>
+ <div class="metric"><div class="label">PROFIT IF WIN</div><div class="value green" id="profit">+₹24.54</div></div>
+ <div class="metric"><div class="label">BALANCE AFTER WIN</div><div class="value green" id="afterWin">₹876.54</div></div>
+ <div class="metric"><div class="label">BALANCE AFTER LOSS</div><div class="value red" id="afterLoss">₹826.44</div></div>
+ <div class="metric"><div class="label">TRADE NUMBER</div><div class="value" id="tradeNo">1</div></div>
+</section>
+
+<section class="card">
+ <div style="font-weight:800;font-size:18px">Record trade result</div>
+ <div class="btns"><button class="win" id="winBtn">✓ WIN — Update balance</button><button class="loss" id="lossBtn">✕ LOSS — Update balance</button></div>
+ <div class="next"><div class="label">NEXT TRADE AFTER RESULT</div><div id="nextSummary">Win ke baad balance ₹876.54 hoga; next stake ₹26.30.</div></div>
+ <button class="reset" id="resetBtn">Reset calculator</button>
+</section>
+
+<section class="card">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px"><strong>Trade history</strong><span class="small" id="totals">Wins: 0 • Losses: 0</span></div>
+ <div class="grid" style="margin-bottom:12px">
+  <div class="metric"><div class="label">TOTAL WIN PROFIT</div><div class="value green" id="totalProfit">₹0.00</div></div>
+  <div class="metric"><div class="label">TOTAL LOSS</div><div class="value red" id="totalLoss">₹0.00</div></div>
+ </div>
+ <div class="tablewrap"><table><thead><tr><th>#</th><th>Result</th><th>Stake</th><th>P/L</th><th>Balance</th></tr></thead><tbody id="history"><tr><td colspan="5" class="empty">No trades recorded yet.</td></tr></tbody></table></div>
+</section>
+<p class="small">Calculation tool only. A 96% payout means a winning trade earns 96% of the stake as profit; a losing trade loses the full stake. Actual platform payouts, fees and rounding may differ. This calculator does not predict or guarantee wins.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let balance=852, trade=1, wins=0, losses=0, totalProfit=0, totalLoss=0, history=[];
+const money=n=>'₹'+Number(n).toFixed(2);
+function settings(){return {risk:Math.max(0,Number($('risk').value)||0)/100,payout:Math.max(0,Number($('payout').value)||0)/100};}
+function refresh(){
+ const {risk,payout}=settings(), stake=balance*risk, profit=stake*payout;
+ $('balance').textContent=money(balance);$('stake').textContent=money(stake);
+ $('profit').textContent='+'+money(profit);$('afterWin').textContent=money(balance+profit);
+ $('afterLoss').textContent=money(Math.max(0,balance-stake));$('tradeNo').textContent=trade;
+ $('nextSummary').textContent=`Win ke baad balance ${money(balance+profit)} aur next stake ${money((balance+profit)*risk)} hoga. Loss ke baad balance ${money(Math.max(0,balance-stake))} aur next stake ${money(Math.max(0,balance-stake)*risk)} hoga.`;
+ $('totals').textContent=`Wins: ${wins} • Losses: ${losses}`;
+ $('totalProfit').textContent=money(totalProfit);$('totalLoss').textContent=money(totalLoss);
+ $('history').innerHTML=history.length?history.slice().reverse().map(x=>`<tr><td>${x.no}</td><td class="${x.result==='WIN'?'green':'red'}">${x.result}</td><td>${money(x.stake)}</td><td class="${x.pnl>=0?'green':'red'}">${x.pnl>=0?'+':''}${money(x.pnl)}</td><td>${money(x.balance)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No trades recorded yet.</td></tr>';
+ $('winBtn').disabled=stake<=0;$('lossBtn').disabled=stake<=0;
+}
+function record(result){
+ const {risk,payout}=settings(), stake=balance*risk;
+ if(stake<=0)return;
+ let pnl=result==='WIN'?stake*payout:-stake;
+ balance=Math.max(0,balance+pnl);
+ if(result==='WIN'){wins++;totalProfit+=pnl}else{losses++;totalLoss+=Math.abs(pnl)}
+ history.push({no:trade,result,stake,pnl,balance});trade++;refresh();
+}
+$('winBtn').addEventListener('click',()=>record('WIN'));
+$('lossBtn').addEventListener('click',()=>record('LOSS'));
+$('capital').addEventListener('change',()=>{balance=Math.max(0,Number($('capital').value)||0);refresh()});
+$('risk').addEventListener('input',refresh);$('payout').addEventListener('input',refresh);
+$('resetBtn').addEventListener('click',()=>{balance=Math.max(0,Number($('capital').value)||0);trade=1;wins=0;losses=0;totalProfit=0;totalLoss=0;history=[];refresh()});
+refresh();
+</script></body></html>
